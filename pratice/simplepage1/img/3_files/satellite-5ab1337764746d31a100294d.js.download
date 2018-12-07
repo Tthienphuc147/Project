@@ -1,0 +1,26 @@
+currentURL =document.location.pathname;
+currentPage = currentURL.split("?");
+
+if ((currentPage[0] == "/en") || (currentPage[0] == "/zh") || (currentPage[0] == "/ja") || (currentPage[0] == "/ko") || (currentPage[0] == "/th") || (currentPage[0] == "/in")) {
+  adobe.target.getOffer({  
+  "mbox": "target-global-mbox",
+  "params": {
+    "adLocation": "HOMEPAGE_ADS_NEWS_RHS"
+  },
+  "success": function(offers) {          
+        adobe.target.applyOffer( { 
+					"mbox": "target-global-mbox",
+					"selector": "cfc-target-ad #HOMEPAGE_ADS_NEWS_RHS",
+					"offer": offers
+        } );
+  },  
+  "error": function(status, error) {          
+      if (console && console.log) {
+				console.log("Adobe Target says: "+status);
+        console.log("Adobe Target says:"+error);
+      }
+  },
+ "timeout": 5000
+});
+}
+

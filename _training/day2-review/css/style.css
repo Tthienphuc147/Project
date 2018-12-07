@@ -1,0 +1,15 @@
+body {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: black;
+  color: white;
+}
+
+body #description img {
+  position: relative;
+  float: right;
+}
+
+body #description #left {
+  position: absolute;
+  text-align: left;
+}

@@ -1,0 +1,112 @@
+* {
+  padding: 0;
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+#wrapper #wrapper-inner #header #top-header {
+  padding: 30px 0;
+}
+
+#wrapper #wrapper-inner #header #top-header h1 {
+  text-align: center;
+  font-size: 50px;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+}
+
+#wrapper #wrapper-inner #header #top-header h1 span {
+  font-size: 70px;
+  color: #6d7993;
+}
+
+#wrapper #wrapper-inner #header #nav {
+  display: flex;
+  background-color: #b3b9c6;
+}
+
+#wrapper #wrapper-inner #header #nav #menu {
+  flex: 1;
+}
+
+#wrapper #wrapper-inner #header #nav #menu ul {
+  display: flex;
+  list-style: none;
+}
+
+#wrapper #wrapper-inner #header #nav #menu ul li {
+  padding: 15px;
+}
+
+#wrapper #wrapper-inner #header #nav #menu ul li a {
+  text-decoration: none;
+  color: white;
+}
+
+#wrapper #wrapper-inner #header #nav #menu ul li:hover {
+  background-color: #4a5364;
+  transition-duration: 0.7s;
+}
+
+#wrapper #wrapper-inner #header #nav #menu ul li:hover a {
+  opacity: 0.7;
+}
+
+#wrapper #wrapper-inner #header #nav #nav-icons ul {
+  display: flex;
+  list-style: none;
+}
+
+#wrapper #wrapper-inner #header #nav #nav-icons ul li {
+  padding: 15px 5px;
+  margin: 0 10px;
+}
+
+#wrapper #wrapper-inner #header #nav #nav-icons ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 15px;
+}
+
+#wrapper #wrapper-inner #header #nav #nav-icons ul li a:hover {
+  opacity: 0.7;
+  transition-duration: 0.7s;
+}
+
+#wrapper #wrapper-inner #banner {
+  background-image: url("https://alfahir.hu/sites/default/files/indexfotos/2018-06/online_0.jpg");
+  background-size: cover;
+  height: 500px;
+}
+
+#wrapper #wrapper-inner #banner #banner-description {
+  transform: translateY(150px);
+  height: 250px;
+  width: 500px;
+  float: right;
+  margin-right: 100px;
+  background-color: rgba(128, 128, 128, 0.24);
+}
+
+#wrapper #wrapper-inner #banner #banner-description #text {
+  margin: 10px 20px;
+}
+
+#wrapper #wrapper-inner #banner #banner-description #text h2 {
+  font-size: 45px;
+  color: white;
+}
+
+#wrapper #wrapper-inner #banner #banner-description #text p {
+  color: white;
+}
+
+#wrapper #wrapper-inner #banner #banner-description #text a {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 7px;
+  color: white;
+  font-size: 20px;
+  font-weight: bold;
+  border: 1px solid white;
+  text-decoration: none;
+}

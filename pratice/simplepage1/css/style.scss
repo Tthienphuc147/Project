@@ -1,0 +1,93 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+body{
+    #wrapper{
+        #header{
+            height:150px;
+            background-image: url('../img/b.jpg');
+            background-size: cover;
+            text-align: center;
+            #title{
+                h1{
+                    color:white;
+                }
+                h2{
+                    color:#cdcdcd;
+                    text-transform: uppercase;
+                }
+                padding-top: 20px;
+                
+            }
+          
+        }
+        nav{
+            background-color: #000035;
+            .navbar-brand{
+                color:ghostwhite;
+                font-weight: bold;
+            }
+            .navbar-toggler{
+                i{
+                    color:white;
+                }
+            }
+           ul{
+
+               li{
+                   a{
+                       color:white;
+                       &:hover{
+                        color:#cdcdcd;
+                        transition-duration: 0.8s;
+                       }
+                   }
+               }
+           }
+
+        }
+        .container{
+            margin-top: 30px;
+            .leftside{
+                img{
+                    height: 200px;
+                }
+                .leftmenu{
+                    li{
+                        a{
+                            background-color: #000035;
+                            color:white;
+                        }
+                    }
+                    
+                }
+            }
+            .maincontent{
+                img{
+                    height: 300px;
+                    width:350px;
+                }
+
+            }
+         
+           
+
+        }
+        footer{
+            background-color: #000035;
+            h5,p{
+                color:white;
+            } 
+            a{
+                color:#cdcdcd;
+            }
+            h6{
+                display: inline;
+                color:white;
+            }
+           
+
+        }
+    }
+}

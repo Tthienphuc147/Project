@@ -1,0 +1,17 @@
+.main {
+  width: 500px;
+  height: 200px;
+  border-radius: 10px, 0px;
+  -moz-border-radius: 10px, 0px;
+  -webkit-border-radius: 10px, 0px;
+  -o-boder-radius: 10px, 0px;
+}
+
+.main2 {
+  width: 700px;
+  height: 800px;
+  border-radius: 10px, 5px;
+  -moz-border-radius: 10px, 5px;
+  -webkit-border-radius: 10px, 5px;
+  -o-boder-radius: 10px, 5px;
+}

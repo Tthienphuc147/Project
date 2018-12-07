@@ -1,0 +1,30 @@
+// "selector": "#MATCHCENTRE_ADS_LHS_POD",
+/*
+console.log("ADOBE TARGET STARTS......");
+
+console.log("current URL: "+document.location.href);
+currentURL = document.location.href;
+
+if (currentURL == "https://uat63.web.chelseafc.com/en"){
+adobe.target.getOffer({  
+  "mbox": "target-global-mbox",
+  "params": {
+    "adLocation": "HOMEPAGE_ADS_FEATUREDVIDEO_BANNER"
+  },
+  "success": function(offers) {          
+        adobe.target.applyOffer( { 
+					"mbox": "target-global-mbox",
+					"selector": "cfc-target-ad #HOMEPAGE_ADS_FEATUREDVIDEO_BANNER",
+					"offer": offers
+        } );
+  },  
+  "error": function(status, error) {          
+      if (console && console.log) {
+				console.log("Adobe Target says: "+status);
+        console.log("Adobe Target says:"+error);
+      }
+  },
+ "timeout": 5000
+});
+}
+*/

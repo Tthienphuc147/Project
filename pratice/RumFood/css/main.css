@@ -1,0 +1,372 @@
+*{
+    margin:0;
+    padding: 0;
+}
+body{
+    font-family: sans-serif,'Mukta Mahee';
+}
+nav ul{
+    list-style: none;
+    display:none;
+}
+nav ul a{
+    display: block;
+    background: #F68657 ;
+    padding:20px;
+    font-size:17px;
+    text-decoration: none;
+    text-transform: uppercase;
+    color:#ffffff;
+    transition: color 1s ease,background 1s ease,padding 1s ease;
+}
+nav ul a:hover{
+    background: #FDD692;
+    color:black;
+    padding-left:30px;
+}
+.nav-container img{
+    width:100px;
+    align-self: center;
+}
+.nav-container{
+    padding:0 20px;
+    background: #f8ecc9;
+    border-bottom: 3px solid white;
+    display:flex;
+    justify-content: space-between;
+}
+
+.bar{
+    width:30px;
+    height: 3px;
+    margin: 7px;
+    background:#ffffff;
+}
+.btn{
+    padding:3px;
+    display:inline-block;
+    border:2px solid white ;
+    align-self: center;
+}
+header{
+    min-height: 100vh;
+    background:linear-gradient(rgba(255,255,255,0.3),rgba(154,34,34,0.3)),url(../img/backheader1.jpg)center/cover fixed no-repeat;
+   
+    display: flex;
+    flex-direction: column;
+}
+nav{
+    flex:0 0 auto;
+}
+.banner{
+    flex:1 0 auto;
+    display: flex;
+    justify-content: center;
+    align-items:center;
+    text-align:center;
+}
+.banner h1{
+    font-size:50px;
+    text-transform: uppercase;
+    color:white;
+    font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+}
+.banner h3{
+    text-transform: capitalize;
+    font-size:30px;
+    color:white;
+}
+.banner-icons{
+    padding:20px;
+}
+
+.banner-icons a{
+    display: inline-block;
+    font-size:30px;
+    background: #ffffff;
+    padding:5px 10px;
+    margin:0 10px;
+    border-radius: 50%;
+    color:black;
+    transition: color 1s ease, transform  1s ease;
+}
+.banner-icons a:hover{
+    color:#de964e;
+    transform: translateY(-10px);
+}
+nav{
+    position: fixed;
+    width: 100%;
+    z-index:10;
+}
+@media screen and (min-width:776px){
+    .nav-container{
+        display: none;
+    }
+    nav ul{
+        display: flex!important;
+        flex-wrap: wrap;
+        justify-content: center;
+        background:black;
+        
+    }
+    nav ul a{
+        background: transparent;
+        color: rgb(111, 83, 34);
+        
+    }
+    nav ul a:hover{
+        background: transparent;
+        padding-left: 20px
+        
+    }
+}
+
+
+/*services*/
+
+.services{
+    min-height: 80vh;
+    background: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/japanese-food-background-10.jpg")center/cover fixed no-repeat;
+    display: flex;
+    align-items: center;
+}
+
+.service{
+    color: white;
+    display: flex;
+    margin:40px;
+}
+
+.service-icon{
+    align-self: center;
+    font-size: 70px;
+    margin-right: 20px;
+    padding: 20px;
+    border: 3px solid white;
+    border-radius: 50%;
+}
+.service-text h3{
+    text-transform: uppercase;
+}
+.service-text p{
+    line-height: 2;
+    margin-top: 10px;
+}
+
+@media screen and (min-width:576px){
+    .services-center{
+        width: 70%;
+        
+    }
+    
+}
+@media screen and (min-width:776px){
+    .services-center{
+        width: 50%;
+    }
+    .services-text p{
+        width: 70%;
+    }
+    
+}
+
+/*project*/
+
+
+.projects{
+    padding: 0 0 100px 0;
+    background: white;
+}
+
+.title h2{
+    font-size: 40px;
+    text-align: center;
+    text-transform: uppercase;
+    color: #474747;
+}
+.title-underline{
+    background: black;
+    width: 100px;
+    height: 4px;
+    margin: 10px auto;
+}
+.title{
+    padding: 50px 0;
+    
+}
+.project{
+    background: black;
+    overflow: hidden;
+   
+}
+.projects img{
+    width: 100%;
+    height: 350px;
+    display: block;
+    transition: opacity 2s ease,transform 2s ease;
+}
+.projects img:hover{
+    opacity: 0.6;
+    cursor: pointer;
+    transform: scale(1.3)
+}
+
+@media screen and (min-width:576px){
+    .projects-center{
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+}
+@media screen and (min-width:992px){
+    .projects-center{
+        display: grid;
+        grid-template-columns:repeat(3,1fr);
+    }
+}
+
+.about{
+    min-height: 100vh;
+    padding: 100px 0;
+    background: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-food-photography-10.jpg")center/cover fixed no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.about-card{
+background: rgba(255,255,255,0.6);
+    text-align: center;
+    padding: 60px 40px;
+}
+.about-card h3{
+    font-size: 60px;
+    text-transform: uppercase;
+}
+.about-card .fa-utensils{
+    font-size: 80px;
+    color:#474747;
+    margin: 20px 0;
+}
+@media screen and (min-width:776px){
+    .about-card{
+        max-width: 50%;
+        border-radius:30px;
+    }
+    .about-card p{
+        max-width: 70%;
+        margin: 0 auto;
+    }
+}
+
+.filler{
+    min-height: 60vh;
+        background: url("http://caresumeworld.com/p/2018/05/background-the-red-herring-restaurant-with-food-menu-background.jpg")center/cover fixed no-repeat;
+}
+
+
+
+
+
+.contact{
+    min-height: 80vh;
+    background: url("http://backgroundcheckall.com/wp-content/uploads/2017/12/background-food-photography-10.jpg")center/cover fixed no-repeat;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.contact-card{
+    background: rgba(0,0,0,0.6);
+    flex:0 0 80%;
+    padding: 40px 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    
+}
+form{
+    flex:0 0 60%;
+    display: flex;
+    flex-direction: column;
+}
+form input{
+    margin: 10px 0;
+    
+}
+form h3{
+    text-align: center;
+    text-transform: uppercase;
+    color: white;
+}
+form input,
+form textarea{
+    padding: 5px;
+    border: 3px solid white;
+}
+input::placeholder,
+textarea::placeholder{
+    text-transform: uppercase;
+    color:#474747;
+        
+}
+.form-btn{
+    margin: 20px;
+    font-size: 20px;
+    border-radius: 40px;
+    padding: 4px;
+    transition: color 1s ease-in-out,background 1s ease-in-out 
+}
+.form-btn:hover{
+    color:whitesmoke;
+    background: #474747
+}
+
+footer{
+    background: #474747;
+    padding: 60px 0;
+    text-align: center;
+}
+.footer-icons a{
+    display: inline-block;
+    font-size:30px;
+    background: #ffffff;
+    padding:2px 5px;
+    margin:0 10px 20px 10px;
+    border-radius: 5px;
+    color:black;
+    transition: color 1s ease, transform  1s ease;
+}
+.footer-icons a:hover{
+    color:#de964e;
+    transform: translateY(-10px);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

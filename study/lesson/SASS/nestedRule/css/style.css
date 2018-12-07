@@ -1,0 +1,21 @@
+.main {
+  color: red;
+  width: 100%;
+}
+
+.main .main-content {
+  background-color: blue;
+  color: black;
+}
+
+.main .main-content a {
+  font-weight: bold;
+}
+
+.main .main-content a:hover {
+  color: yellowgreen;
+}
+
+.main .main-info {
+  font-size: 30px;
+}

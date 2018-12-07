@@ -1,0 +1,12 @@
+$dk:maudo;
+.main{
+    @if($dk==maudo){
+        background: red;
+    }
+    @else if($dk==mauxanh){
+        background: blue;
+    }
+    @else{
+        background: black;
+    }
+}

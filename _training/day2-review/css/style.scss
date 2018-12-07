@@ -1,0 +1,15 @@
+body{
+    font-family: Arial, Helvetica, sans-serif;
+    background-color: black;
+   color:white;
+   #description{
+       img{
+           position: relative;
+           float:right;
+       }
+       #left{
+           position: absolute;
+           text-align: left;
+       }
+   }
+}

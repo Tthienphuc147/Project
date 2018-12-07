@@ -1,0 +1,7 @@
+
+@each $var,$color in (item1,red),(item3,blue),(item3,green) {
+    .#{$var}{
+        background:url("/image/#{$var}.png");
+        color:#{$color};
+    }
+}

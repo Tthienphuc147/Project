@@ -1,0 +1,979 @@
+
+
+
+// Vindicia Hosted Fields
+'use strict';
+(function(window){
+    var debuglog = false; // to browser console
+
+    var Vindicia = function()
+    {
+        // constructor
+        this.vinOptions = {};
+        this.frames = {};
+        this.cardType;
+        this.ajaxOnly = false;
+        this.submitFormRequest = false;
+        this.vinServer = "secure.vindicia.com";
+        this.safariTimer = null;
+    }
+
+    Vindicia.prototype.setup = function(options)
+    {
+        if (this instanceof Vindicia)
+        {
+            this.vinOptions = options;
+
+            if ('vindiciaServer' in options)
+            {
+                if (options.vindiciaServer.match(/[-a-zA-Z0-9:.]{2,10}/))
+                {
+                    this.vinServer = options.vindiciaServer;
+                }
+                else
+                {
+                    throw new Error('vindiciaServer has illegal characters in it');
+                }
+            }
+
+        if ('onVindiciaFieldEvent' in options)
+        {
+            addVindiciaEvent(document.body, 'vindiciaFieldEvent', options.onVindiciaFieldEvent);
+        }
+
+        if ('onSubmitCompleteEvent' in options)
+        {
+            addVindiciaEvent(document.body, 'submitCompleteEvent', options.onSubmitCompleteEvent);
+            this.ajaxOnly = true;
+        }
+
+        if ('onSubmitEvent' in options)
+        {
+            this.submitValidator = options.onSubmitEvent;
+        }
+
+        if ('formId' in options)
+        {
+            options.formId = options.formId.replace('#','');
+            if (options.formId != "")
+            {
+                if (!options.formId.match(/^[\w-]+$/)) {
+                    throw new Error('formId has illegal characters in it');
+                }
+
+                // find vin_WebSession_version from hidden field in form
+                var myForm = document.getElementById(options.formId);
+                if (!myForm || myForm.nodeName !== "FORM") 
+                {
+                    throw new Error('Form ' + options.formId + ' not found');
+                }
+                if (!myForm.elements.namedItem("vin_WebSession_vid"))
+                {
+                    throw new Error('vin_WebSession_vid missing from form ' + options.formId);
+                }
+                addVindiciaEvent(myForm, 'submit', function(e) {
+                    if (vindicia.isComplete()) {
+                        // master iframe submitted successfully do nothing
+                        e.preventDefault(); // let iframes catch up
+                        return false;
+                    }
+                    else
+                    {
+                        // call optional merchant validator
+                        var merchantValid = true;
+                        if ("submitValidator" in vindicia)
+                        {
+                            merchantValid = vindicia.submitValidator(this);
+                        }
+
+                        if (merchantValid && vindicia.isValid())
+                        {   
+                            vindicia.submit();
+                        }
+                        e.preventDefault(); // let iframes catch up
+                        return false;
+                    }
+                });
+            }
+            else
+            {
+                throw new Error('formId cannot be blank');
+            }
+        }
+        else
+        {
+            throw new Error('formId must be specified');
+        }
+
+        // now look for hostedFields
+        if ('hostedFields' in options)
+        {
+            // Special sensitive fields: cardNumber, expirationDate and cvn
+            // Optional sensitive fields: expirationMonth, expirationYear
+            // The rest just need to not be blank
+            this.createMasterFrame();
+            for (var key in options.hostedFields)
+            {
+                if (key == 'styles') { continue; }
+                if (key == 'onVindiciaEvent') { continue; }
+
+                // inject iframe into DOM
+                if (options.hostedFields.hasOwnProperty(key))
+                {
+                    this.createFrame(key, options.hostedFields[key]);
+                }
+            }
+        }
+      }
+    };
+
+
+    Vindicia.prototype.getForm = function () {
+        return this.vinOptions.formId;
+    };
+
+    Vindicia.prototype.createMasterFrame = function () {
+        // hidden master iframe
+        var key = "master";
+        var url = "https://" + this.vinServer + '/ws/hosted-fields-ws-iframe.html#' + key;
+        var divTag = document.createElement("div");
+        divTag.id = 'vindicia-hosted-frame-' + key;
+        divTag.name = 'vindicia-hosted-frame-' + key;
+        divTag.setAttribute("vindicia-type", key);
+        divTag.style.display = 'none';
+        var iframe = document.createElement("iframe");
+        iframe.id = 'vindicia-hosted-field-' + key;
+        iframe.name = 'vindicia-hosted-field-' + key;
+        iframe.src = url;
+        iframe.setAttribute("vindicia-type", key);
+        iframe.style.display = 'none';
+        divTag.appendChild(iframe);
+        this.frames[key] = {
+            "fieldType": key,
+            "url": url,
+            "isValid": false,
+            "cardType": '',
+            "selectorName": key,
+            "complete": false
+        }
+        document.body.appendChild(divTag);
+
+        if (debuglog) console.log('created iframe: ' + url);
+        if (!this.frames['expirationDate'])
+        {
+            this.frames['expirationDate'] = {
+                "fieldType": 'expirationDate',
+                "url": '',
+                "isValid": false,
+                "isLoaded": true,
+                "isSynced": false,
+                "cardType": '',
+                "selectorName": 'vinExpirationDate',
+                "complete": true
+            }
+        }
+    };
+
+    Vindicia.prototype.createFrame = function (key, frameOpts) {
+        if (!key.match(/^[\w-]+$/)) {
+            throw new Error('iframe name ' + key + ' has illegal characters in it'); // failed sanitize check
+            return;
+        }
+        var container = document.querySelector(frameOpts.selector);
+        if (!container) {
+            throw new Error('selector ' + frameOpts.selector + ' for ' + key + ' does not exist');
+            return;
+        }
+        if (container.nodeType && container.nodeType != 1) {
+            throw new Error('selector ' + frameOpts.selector + ' is not a normal element');
+            return;
+        }
+        if (container.querySelector('iframe[name^="vindicia-"]')) {
+            throw new Error('selector ' + frameOpts.selector + ' cannot be an iframe container');
+            return;
+        }
+
+        var url = "https://" + this.vinServer + '/ws/hosted-fields-ws-iframe.html#' + key;
+        var iframe = document.createElement("iframe");
+        iframe.id = 'vindicia-hosted-field-' + key;
+        iframe.name = 'vindicia-hosted-field-' + key;
+        iframe.setAttribute("vindicia-type", key);
+        iframe.src = url;
+        iframe.style.border = '0';
+        iframe.style.width = '100%';
+        iframe.style.height = '10px'; // chrome only allows upsizing later so start small
+        iframe.style.float = 'left';
+        iframe.frameborder = 0;
+        iframe.style.top = '0';
+        iframe.style.left = '0';
+        iframe.allowTransparency = true;
+        container.style.overflow = "hidden";
+
+        var clearDiv = document.createElement('div');
+        clearDiv.style.clear = 'both';
+
+        container.appendChild(iframe);
+        container.appendChild(clearDiv);
+        var sel = frameOpts.selector;
+        this.frames[key] = {
+            "fieldType": key,
+            "url": url,
+            "isValid": false,
+            "isLoaded": false,
+            "isSynced": false,
+            "cardType": '',
+            "selectorName": sel.replace('#',''),
+            "complete": false
+        }
+        if (debuglog) console.log("created iframe: " + this.frames[key].url);
+    };
+
+    function addVindiciaEvent(obj, type, fn) {
+    // cross browser add event listener
+
+        if (obj.addEventListener) {
+            obj.addEventListener(type, fn, false);
+            vindiciaEventCache.add(obj, type, fn);
+        }
+        else if (obj.attachEvent) {
+            obj["e" + type + fn] = fn;
+            obj[type + fn] = function() { 
+                obj["e" + type + fn](window.event); 
+            }
+            obj.attachEvent("on" + type, obj[type + fn]);
+            vindiciaEventCache.add(obj, type, fn);
+        } else {
+            obj["on" + type] = obj["e" + type + fn];
+        }
+    }
+
+    var vindiciaEventCache = function() {
+        var listEvents = [];
+        return {
+            listEvents : listEvents,
+            add : function(node, sEventName, fHandler) {
+                listEvents.push(arguments);
+            },
+            flush : function() {
+              var i, item;
+              for (i = listEvents.length - 1; i >= 0; i = i - 1) {
+                  item = listEvents[i];
+                  if (item[0].removeEventListener) {
+                      item[0].removeEventListener(item[1], item[2], item[3]);
+                  };
+
+                  if (item[1].substring(0, 2) != "on") {
+                      item[1] = "on" + item[1];
+                  };
+
+                  if (item[0].detachEvent) {
+                      item[0].detachEvent(item[1], item[2]);
+                  };
+
+                  item[0][item[1]] = null;
+               };
+            }
+      };
+    }();
+
+    addVindiciaEvent(window, 'unload', vindiciaEventCache.flush);
+
+    addVindiciaEvent(window, 'message', function(event) {
+        // Vindicia way of communicating with iframes
+        if (event.data.eType == "adjustHeight")
+        {
+            // iframe is reporting back that its height could have changed
+            // so adjust it from the parents perspective to avoid a scrollbar
+            var fieldType = event.data.fieldType;
+            var iframe = document.getElementById('vindicia-hosted-field-' + fieldType);
+            var height = event.data.height;
+
+            iframe.style.height = parseInt(height) + 'px';
+            if (debuglog) console.log("event: " + event.data.eType + ' from ' + fieldType + ' height: ' + height);
+        }
+        if (event.data.eType == "frameLoaded")
+        {
+            // 1) Send config to iframe to set input placeholder and CSS styling
+            var fieldType = event.data.fieldType;
+            if (debuglog) console.log("event: " + event.data.eType + ' from ' + fieldType);
+            vindicia.setSource(fieldType, event.source);
+
+            if (fieldType == "master")
+            {
+                var messageData = {
+                    eType: 'initConfig',
+                    fieldType: fieldType
+                };
+                event.source.postMessage(messageData, event.origin);
+            }
+            else
+            {
+                vindicia.frames[fieldType].isLoaded = true;
+                var messageData = {
+                    eType: 'initConfig',
+                    fieldType: fieldType,
+                    config: vindicia.vinOptions.hostedFields[fieldType],
+                    styles: vindicia.vinOptions.hostedFields['styles'],
+                    iframeHeightPadding: vindicia.vinOptions.iframeHeightPadding
+                };
+                event.source.postMessage(messageData, event.origin);
+            }
+        }
+        if (event.data.eType == "validationReport")
+        {
+            // onblur, onchange or vindicia syncData message from iframe form input
+            var selectorName = event.data.selectorName;
+            var fieldType = event.data.fieldType;
+            var iframe = document.getElementById('vindicia-hosted-field-' + fieldType);
+            var isValid = event.data.isValid;
+            var dataLength = event.data.dataLength;
+            vindicia.frames[fieldType].isSynced = true;
+            if (fieldType == 'expirationMonth') {
+                if (vindicia.frames['expirationYear'].isSynced) vindicia.frames['expirationDate'].isSynced = true;
+            }
+            if (fieldType == 'expirationMonthInput') {
+                if (vindicia.frames['expirationYearInput'].isSynced) vindicia.frames['expirationDate'].isSynced = true;
+            }
+            if (fieldType == 'expirationYear') {
+                if (vindicia.frames['expirationMonth'].isSynced) vindicia.frames['expirationDate'].isSynced = true;
+            }
+            if (fieldType == 'expirationYearInput') {
+                if (vindicia.frames['expirationMonthInput'].isSynced) vindicia.frames['expirationDate'].isSynced = true;
+            }
+            if (fieldType == 'expirationDate') {
+                if (debuglog) console.log('According to validationReport, expirationDate is not valid');
+                // Send event "expirationDateStatus" if separated month and year use
+                for (var key in vindicia.vinOptions.hostedFields)
+                {
+                    switch(key) {
+                        case 'expirationMonth':
+                        case 'expirationMonthInput':
+                        case 'expirationYear':
+                        case 'expirationYearInput':
+                            if (debuglog) console.log('sending expirationDateStatus ' + key);
+                            //vindicia.frames[key].isSynced = false;
+                            var messageData = {
+                                eType: 'expirationDateStatus',
+                                fieldType: key,
+                                form: {},
+                                isValid: isValid
+                            };
+                            vindicia.frames[key].source.postMessage(messageData, vindicia.frames[key].url);
+                            break;
+                    }
+                }
+            }
+            if (fieldType == 'cardNumber')
+            {
+                var cardType = event.data.cardType;
+                window.vindicia.setValidationCard(selectorName, fieldType, isValid, dataLength, cardType);
+                if (debuglog) console.log('parent received validationReport event: ' + fieldType + ' ' + cardType + ' ' + isValid);
+                var myEvent = new CustomEvent("vindiciaFieldEvent", {
+                    bubbles: true, 
+                    cancelable: true,
+                    detail: {
+                        fieldType: fieldType,
+                        cardType: cardType,
+                        isValid: isValid,
+                        dataLength: dataLength
+                    }
+                });
+                document.body.dispatchEvent(myEvent);
+            }
+            else
+            {
+                if (debuglog) console.log('parent validation event: ' + fieldType + ' ' + isValid);
+                window.vindicia.setValidation(selectorName, fieldType, isValid, dataLength);
+                var myEvent = new CustomEvent("vindiciaFieldEvent", {
+                    bubbles: true, 
+                    cancelable: true,
+                    detail: {
+                        fieldType: fieldType,
+                        isValid: isValid,
+                        dataLength: dataLength
+                    }
+                });
+                document.body.dispatchEvent(myEvent);
+            }
+            if (vindicia.submitFormRequest && vindicia.isSynced()) vindicia.submit2(); // tell master iframe to post its data
+        }
+        if (event.data.eType == "submitComplete")
+        {   
+            // iframe reporting that AJAX submit is complete
+            var fieldType = event.data.fieldType;
+            vindicia.setComplete(fieldType, true); 
+            var url;
+            if (event.data.hasOwnProperty("url")) url = event.data.url;
+            if (debuglog) console.log("event: " + event.data.eType + ' from ' + fieldType + ' redirect ' + event.data.url);
+            if (vindicia.ajaxOnly) {
+                if (debuglog) console.log('submitComplete event, ajaxOnly');
+                var myEvent = new CustomEvent("submitCompleteEvent", {
+                    bubbles: true,
+                    cancelable: true,
+                    detail: {
+                        fieldType: 'submit',
+                        isValid: true,
+                        dataLength: 0,
+                        url: url
+                    }
+                });
+                document.body.dispatchEvent(myEvent);
+            }
+            else
+            {
+                if (url) window.location = url; // redirect
+            }
+        }
+
+    });
+
+    Vindicia.prototype.setSource = function(fieldType, source)
+    {
+        this.frames[fieldType].source = source;
+    }
+
+    Vindicia.prototype.setComplete = function(fieldType, boolValue)
+    {
+        if (boolValue)
+        {
+            this.frames[fieldType].complete = true;
+        }
+        else
+        {
+            this.frames[fieldType].complete = false;
+        }
+    }
+
+    Vindicia.prototype.isValid = function(tagId)
+    {
+        // Return last boolean value for iframe's last validation pass.
+        // If tagId is null do all iframes. This means return true if all are true.
+ 
+        if (tagId)
+        {
+            tagId = tagId.replace('#','');
+            if (!tagId.match(/^[\w-]+$/)) {
+                return false; // hack attempts are not valid for submission
+            }
+        }
+        for (var key in this.frames)
+        {
+            if (key == 'styles') continue;
+            if (key == 'onVindiciaEvent') continue;
+            if (key == 'master') continue;
+            if (tagId)
+            {
+                if ((this.frames[key].selectorName == tagId) || (key == tagId))
+                {
+                    return this.frames[key].isValid;
+                }
+            }
+            else
+            {
+                // do all
+                if (!this.frames[key].isValid) return false;
+            }
+        }
+        return true;
+    };
+
+    Vindicia.prototype.isLoaded = function(tagId)
+    {
+        // Return boolean value if iframe's have reported in that they are loaded
+        // If tagId is null do all iframes. This means return true if all are true.
+
+        if (tagId)
+        {
+            tagId = tagId.replace('#','');
+            if (!tagId.match(/^[\w-]+$/)) {
+                return false; // hack attempts are not valid for submission
+            }
+        }
+        for (var key in this.frames)
+        {
+            if (key == 'styles') continue;
+            if (key == 'onVindiciaEvent') continue;
+            if (key == 'master') continue;
+            if (tagId)
+            {
+                if ((this.frames[key].selectorName == tagId) || (key == tagId))
+                {
+                    return this.frames[key].isLoaded;
+                }
+            }
+            else
+            {
+                // do all
+                if (!this.frames[key].isLoaded) return false;
+            }
+        }
+        return true;
+    };
+
+    Vindicia.prototype.isSynced = function(tagId)
+    {
+        // Return boolean value if iframe's have send a validation report
+        // If tagId is null do all iframes. This means return true if all are true.
+
+        if (tagId)
+        {
+            tagId = tagId.replace('#','');
+            if (!tagId.match(/^[\w-]+$/)) {
+                return false; // hack attempts are not valid for submission
+            }
+        }
+        for (var key in this.frames)
+        {
+            if (key == 'master') continue;
+            if (tagId)
+            {
+                if ((this.frames[key].selectorName == tagId) || (key == tagId))
+                {
+                    return this.frames[key].isSynced;
+                }
+            }
+            else
+            {
+                // do all
+                if (!this.frames[key].isSynced) return false;
+            }
+        }
+        return true;
+    };
+
+    Vindicia.prototype.isComplete = function()
+    {
+        // Return true if master iframe has finished POSTing to Vindicia.
+        for (var key in this.frames)
+        {
+            if (key != 'master') continue;
+            return this.frames[key].complete;
+        }
+        return false;
+    };
+
+    Vindicia.prototype.dataLength = function(tagId)
+    {
+        // Return last character count iframe's last validation pass.
+
+        if (tagId)
+        {
+            tagId = tagId.replace('#','');
+            if (!tagId.match(/^[\w-]+$/)) {
+                return 0; // hack attempts are not valid for submission
+            }
+        }
+        for (var key in this.frames)
+        {
+            if (key == 'styles') continue;
+            if (key == 'onVindiciaEvent') continue;
+            if (tagId)
+            {
+                if ((this.frames[key].selectorName == tagId) || (key == tagId))
+                {
+                    return this.frames[key].dataLength;
+                }
+            }
+        }
+        return 0;
+    };
+
+    Vindicia.prototype.setValidationCard = function(selectorName, key, isValid, dataLength, cardType)
+    {
+        this.frames[key].selectorName = selectorName;
+        this.frames[key].dataLength = dataLength;
+        this.frames[key].isValid = isValid;
+        this.frames[key].cardType = cardType;
+        this.cardType = cardType; // last known card
+    };
+
+    Vindicia.prototype.setValidation = function(selectorName, key, isValid, dataLength)
+    {
+        this.frames[key].selectorName = selectorName;
+        this.frames[key].dataLength = dataLength;
+        this.frames[key].isValid = isValid;
+    };
+
+    Vindicia.prototype.submit = function()
+    {
+        // first stage of submit, collect iframe data for the last time into master iframe
+        var canSubmit = this.isValid() && !this.isComplete();
+        if (canSubmit)
+        {
+            this.submitFormRequest = true; // trigger stage two later
+            this.clearSyncFlags();
+            this.syncData();
+        }
+        return canSubmit;
+    };
+
+    Vindicia.prototype.submit2 = function()
+    {
+        // second stage of submit. All iframes have synced up with master iframe
+        // Send 'submitForm' event to master iframe to POST to Vindicia with other form data
+        if (this.isValid()) {
+            for (var key in this.frames)
+            {
+                if (key != 'master') continue;
+                var messageData = {
+                    eType: 'submitForm',
+                    form: {}
+                };
+                messageData = this.serializeForm(messageData);
+                this.frames[key].source.postMessage(messageData, this.frames[key].url);
+            }
+        }
+        this.submitFormRequest = false;
+    };
+
+    Vindicia.prototype.syncData = function()
+    {
+        // send a message to each iframe to send its data to master
+        for (var key in this.vinOptions.hostedFields)
+        {
+            if (key == 'styles') continue;
+            if (key == 'onVindiciaEvent') continue;
+            if (key == 'master') continue;
+            if (debuglog) console.log('syncData ' + key);
+            this.frames[key].isSynced = false;
+            var messageData = {
+                eType: 'syncData',
+                form: {}
+            };
+            this.frames[key].source.postMessage(messageData, this.frames[key].url);
+        }
+    };
+
+    Vindicia.prototype.clearSyncFlags = function()
+    {
+        // set all sync flags to false
+        for (var key in this.frames)
+        {
+            if (key == 'master') continue;
+            this.frames[key].isSynced = false;
+        }
+    };
+
+    Vindicia.prototype.resetCompleteStatus = function()
+    {
+        this.frames['master'].complete = false;
+    };
+
+    Vindicia.prototype.clearData = function()
+    {
+        // reset master iframe isComplete flag
+        // send clearData message to iframes
+        // set all sync flags and valid flags to false
+        this.frames['master'].complete = false;
+        for (var key in this.frames)
+        {
+            if ('source' in this.frames[key]) {
+                var messageData = {
+                    eType: 'clearData',
+                    form: {}
+                };
+                this.frames[key].source.postMessage(messageData, this.frames[key].url);
+            }
+
+            this.frames[key].isSynced = false;
+            this.frames[key].isValid = false;
+        }
+    };
+
+    Vindicia.prototype.luhnCheckForm = function()
+    {
+        var myForm = document.getElementById(this.vinOptions.formId);
+        if (!myForm || myForm.nodeName !== "FORM") return;
+        var i, j, q = [];
+        var result; // null means no unwanted luhns
+        for (i = myForm.elements.length - 1; i >= 0; i = i - 1) {
+            var element = myForm.elements[i];
+            if (element.name === "") continue;
+            switch (element.nodeName) {
+              case 'INPUT':
+                  switch (element.type) {
+                    case 'text':
+                    case 'tel':
+                    case 'number':
+                    case 'hidden':
+                    case 'password':
+                    case 'button':
+                    case 'reset':
+                    case 'submit':
+                        if (is_valid_luhn(element.value)) result = element;
+                        break;
+                    case 'checkbox':
+                    case 'radio':
+                        if (element.checked) {
+                            if (is_valid_luhn(element.value)) result = element;
+                        }
+                        break;
+                    case 'file':
+                        break;
+                  }
+                  break;                       
+              case 'TEXTAREA':
+                  if (is_valid_luhn(element.value)) result = element;
+                  break;
+              case 'BUTTON':
+                  switch (element.type) {
+                    case 'reset':
+                    case 'submit':
+                    case 'button':
+                        if (is_valid_luhn(element.value)) result = element;
+                        break;
+                  }
+                  break;
+            }
+        }
+        return result;
+    }
+
+    Vindicia.prototype.serializeForm = function(msg)
+    {
+        // package up the ordinary form elements
+        var myForm = document.getElementById(this.vinOptions.formId);
+        if (!myForm || myForm.nodeName !== "FORM") return;
+        var i, j, q = [];
+        for (i = myForm.elements.length - 1; i >= 0; i = i - 1) {
+            if (myForm.elements[i].name === "") continue;
+            switch (myForm.elements[i].nodeName) {
+              case 'INPUT':
+                  switch (myForm.elements[i].type) {
+                    case 'text':
+                    case 'tel':
+                    case 'number':
+                    case 'hidden':
+                    case 'password':
+                    case 'button':
+                    case 'reset':
+                    case 'submit':
+                        msg.form[myForm.elements[i].name] = myForm.elements[i].value;
+                        break;
+                    case 'checkbox':
+                    case 'radio':
+                        if (myForm.elements[i].checked) {
+                            msg.form[myForm.elements[i].name] = myForm.elements[i].value;
+                        }						
+                        break;
+                    case 'file':
+                        break;
+                  }
+                  break;			 
+              case 'TEXTAREA':
+                  msg.form[myForm.elements[i].name] = myForm.elements[i].value;
+                  break;
+              case 'SELECT':
+                  switch (myForm.elements[i].type) {
+                    case 'select-one':
+                        msg.form[myForm.elements[i].name] = myForm.elements[i].value;
+                        break;
+                    case 'select-multiple':
+                        for (j = myForm.elements[i].options.length - 1; j >= 0; j = j - 1) {
+                            if (myForm.elements[i].options[j].selected) {
+                                msg.form[myForm.elements[i].name] = myForm.elements[i].options[j].value;
+                            }
+                        }
+                        break;
+                  }
+                  break;
+              case 'BUTTON':
+                  switch (myForm.elements[i].type) {
+                    case 'reset':
+                    case 'submit':
+                    case 'button':
+                        msg.form[myForm.elements[i].name] = myForm.elements[i].value;
+                        break;
+                  }
+                  break;
+            }
+        }
+        return msg;
+    }
+
+    function vinException(message) {
+       this.message = message;
+       this.name = "vinException";
+    }
+
+
+    // Polyfill for EventListener
+    window.Element && Element.prototype.attachEvent && !Element.prototype.addEventListener && (function () {
+	function addToPrototype(name, method) {
+		Window.prototype[name] = HTMLDocument.prototype[name] = Element.prototype[name] = method;
+	}
+
+	// add
+	addToPrototype("addEventListener", function (type, listener) {
+		var
+		target = this,
+		listeners = target.addEventListener.listeners = target.addEventListener.listeners || {},
+		typeListeners = listeners[type] = listeners[type] || [];
+
+		// if no events exist, attach the listener
+		if (!typeListeners.length) {
+			target.attachEvent("on" + type, typeListeners.event = function (event) {
+				var documentElement = target.document && target.document.documentElement || target.documentElement || { scrollLeft: 0, scrollTop: 0 };
+
+				// polyfill w3c properties and methods
+				event.currentTarget = target;
+				event.pageX = event.clientX + documentElement.scrollLeft;
+				event.pageY = event.clientY + documentElement.scrollTop;
+				event.preventDefault = function () { event.returnValue = false };
+				event.relatedTarget = event.fromElement || null;
+				event.stopImmediatePropagation = function () { immediatePropagation = false; event.cancelBubble = true };
+				event.stopPropagation = function () { event.cancelBubble = true };
+				event.target = event.srcElement || target;
+				event.timeStamp = +new Date;
+
+				// create an cached list of the master events list (to protect this loop from breaking when an event is removed)
+				for (var i = 0, typeListenersCache = [].concat(typeListeners), typeListenerCache, immediatePropagation = true; immediatePropagation && (typeListenerCache = typeListenersCache[i]); ++i) {
+					// check to see if the cached event still exists in the master events list
+					for (var ii = 0, typeListener; typeListener = typeListeners[ii]; ++ii) {
+						if (typeListener == typeListenerCache) {
+							typeListener.call(target, event);
+
+							break;
+						}
+					}
+				}
+			});
+		}
+
+		// add the event to the master event list
+		typeListeners.push(listener);
+	});
+
+	// remove
+	addToPrototype("removeEventListener", function (type, listener) {
+		var
+		target = this,
+		listeners = target.addEventListener.listeners = target.addEventListener.listeners || {},
+		typeListeners = listeners[type] = listeners[type] || [];
+
+		// remove the newest matching event from the master event list
+		for (var i = typeListeners.length - 1, typeListener; typeListener = typeListeners[i]; --i) {
+			if (typeListener == listener) {
+				typeListeners.splice(i, 1);
+
+				break;
+			}
+		}
+
+		// if no events exist, detach the listener
+		if (!typeListeners.length && typeListeners.event) {
+			target.detachEvent("on" + type, typeListeners.event);
+		}
+	});
+
+	// dispatch
+	addToPrototype("dispatchEvent", function (eventObject) {
+		var
+		target = this,
+		type = eventObject.type,
+		listeners = target.addEventListener.listeners = target.addEventListener.listeners || {},
+		typeListeners = listeners[type] = listeners[type] || [];
+
+		try {
+			return target.fireEvent("on" + type, eventObject);
+		} catch (error) {
+			if (typeListeners.event) {
+				typeListeners.event(eventObject);
+			}
+
+			return;
+		}
+	});
+
+	// CustomEvent
+	Object.defineProperty(Window.prototype, "CustomEvent", {
+		get: function () {
+			var self = this;
+
+			return function CustomEvent(type, eventInitDict) {
+				var event = self.document.createEventObject(), key;
+
+				event.type = type;
+				for (key in eventInitDict) {
+					if (key == 'cancelable'){
+						event.returnValue = !eventInitDict.cancelable;
+					} else if (key == 'bubbles'){
+						event.cancelBubble = !eventInitDict.bubbles;
+					} else if (key == 'detail'){
+						event.detail = eventInitDict.detail;
+					}
+				}
+				return event;
+			};
+		}
+	});
+
+	// ready
+	function ready(event) {
+		if (ready.interval && document.body) {
+			ready.interval = clearInterval(ready.interval);
+
+			document.dispatchEvent(new CustomEvent("DOMContentLoaded"));
+		}
+	}
+
+	ready.interval = setInterval(ready, 1);
+
+	window.addEventListener("load", ready);
+    })();
+
+    function isIE() { 
+        var userAgent = window.navigator.userAgent;
+        var pattern = "MSIE|Trident";
+        var matches = userAgent.match(pattern);
+        if (matches) {
+            return true;
+        }
+        return false;
+    }
+
+    function isiOS() {
+        return /iP(ad|hone|od)/i.test(navigator.userAgent) && !window.MSStream;
+    }
+
+    if (isIE()) {
+        (function () {
+          function CustomEvent ( event, params ) {
+              params = params || { bubbles: false, cancelable: false, detail: undefined };
+              var evt = document.createEvent( 'CustomEvent' );
+              evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+              return evt;
+           }
+
+           CustomEvent.prototype = window.Event.prototype;
+           window.CustomEvent = CustomEvent;
+        })();
+    }
+
+    function is_valid_luhn(number)
+    {
+        // Don't want a luhn
+        if (!number.match(/^\d+$/)) return false;
+        var digit, n, sum, _j, _len1, _ref1;
+        sum = 0;
+        _ref1 = number.split('').reverse();
+        for (n = _j = 0, _len1 = _ref1.length; _j < _len1; n = ++_j) {
+            digit = _ref1[n];
+            digit = +digit;
+            if (n % 2) {
+                digit *= 2;
+                if (digit < 10) {
+                  sum += digit;
+                } else {
+                  sum += digit - 9;
+                }
+            } else {
+                sum += digit;
+            }
+        }
+        return sum % 10 === 0;
+    };
+
+    window.Vindicia = Vindicia;
+})(window);
+var vindicia = new Vindicia();

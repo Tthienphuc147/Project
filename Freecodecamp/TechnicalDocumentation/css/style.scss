@@ -1,0 +1,103 @@
+* {
+    padding: 0px;
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+body{
+    min-width: 290px;
+    color: white;
+    background-color: #383A3F;
+    font-family: Arial, Helvetica, sans-serif;
+    line-height: 1.5;
+
+    #navbar {
+        position: fixed;
+        min-width: 290px;
+        top: 0px;
+        left: 0px;
+        width: 300px;
+        height: 100%;
+        border-right: solid;
+        border-color: rgba(0, 22, 22, 0.4);
+        background-color:#DE6449;
+
+        header {
+            color: black;
+            font-size: 30px;
+            margin: 10px;
+            text-align: center;
+            font-size: 1.8em;
+            font-weight: thin;
+        }
+
+        ul {
+            height: 88%;
+            margin-left:50px;
+
+            li {
+                color: #4d4e53;
+                border: 1px solid;
+                border-bottom-width: 0px;
+                padding: 8px;
+                padding-left: 45px;
+                list-style: none;
+                position: relative;
+                left: -50px;
+                width: 300px;
+
+                a {
+                    color:white;
+                    text-decoration: none;
+                    cursor: pointer;
+                }
+            }
+        }
+
+    }
+    #main-doc{
+        position: absolute;;
+        margin-left:310px;
+        padding:20px;
+        margin-bottom:110px;
+        .title{
+            text-align:left;
+            margin:0px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: bold;
+            font-size: 20px;
+            color:#DE6449;
+        }
+      }
+      section {
+        color: white;
+        margin:15px;
+        font-size:0.96em;
+        li{
+            margin:15px 0px 0px 20px;
+        }
+      }
+      .content{
+        margin:15px;
+        font-size:0.96em; 
+        .code{
+            background-color: white;
+            color:black;
+        }
+      }
+      
+      tr{
+        padding: 30px;
+        
+        th{
+            border: 1px solid #DE6449;
+            background-color: white;
+        }
+        td{
+            border: 1px solid #DE6449;
+            width: 200px;
+            border-collapse: separate;
+        }
+        
+    }
+}

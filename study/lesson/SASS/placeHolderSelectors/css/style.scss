@@ -1,0 +1,20 @@
+%border{
+    border-radius: 10px, 5px;
+    -moz-border-radius: 10px, 5px;
+    -webkit-border-radius: 10px, 5px;
+    -o-boder-radius: 10px, 5px;
+}
+.background{
+    background-color: red;
+    border: 10px solid saddlebrown;
+}
+.main{
+    width: 500px;
+    height: 200px;
+    @extend .background;
+}
+.main2{
+    @extend %border,.background;
+
+}
+//dung de thua huong vung chon ma ta xac dinh no chi hien thi tren file scss ko hien thi tren file css

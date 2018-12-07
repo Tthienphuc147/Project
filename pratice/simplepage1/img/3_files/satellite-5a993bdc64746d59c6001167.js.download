@@ -1,0 +1,24 @@
+//currentURL =document.location.pathname;
+
+//if (currentURL = "/en/matches/fixtures"){
+adobe.target.getOffer({  
+  "mbox": "target-global-mbox",
+  "params": {
+    "adLocation": "ARTICLES_ADS_RHS_POD_1"
+  },
+  "success": function(offers) {          
+        adobe.target.applyOffer( { 
+					"mbox": "target-global-mbox",
+					"selector": "cfc-target-ad #ARTICLES_ADS_RHS_POD_1",
+					"offer": offers
+        } );
+  },  
+  "error": function(status, error) {          
+      if (console && console.log) {
+				console.log("Adobe Target says: "+status);
+        console.log("Adobe Target says:"+error);
+      }
+  },
+ "timeout": 5000
+});
+//}

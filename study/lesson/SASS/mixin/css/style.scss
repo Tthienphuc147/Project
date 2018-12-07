@@ -1,0 +1,18 @@
+@mixin border-rd($bien1,$bien2) {//tao nhu mot ham
+	border-radius: $bien1,$bien2;
+	-moz-border-radius: $bien1,$bien2;
+	-webkit-border-radius: $bien1,$bien2;
+	-o-boder-radius: $bien1,$bien2;
+}
+
+
+.main{
+    width: 500px;
+    height: 200px;
+    @include border-rd(10px,0px);//goi ham dung @include
+}
+.main2{
+    width: 700px;
+    height: 800px;
+    @include border-rd(10px,5px )
+}

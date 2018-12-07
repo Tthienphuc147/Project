@@ -1,0 +1,22 @@
+$color:blue;
+$color1:red;
+.main{
+    color:$color;
+    width: 100%;
+    .main-content{
+        background-color: blue;
+        color:$color1;
+        a{
+            font-weight: bold;
+            &:hover{
+                color: yellowgreen;
+            }
+        }
+    }
+    .main-info{
+        font: {
+            size:30px;
+        }
+        color:$color;
+    }
+}

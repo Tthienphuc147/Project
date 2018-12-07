@@ -1,0 +1,19 @@
+.main{
+    color:red;
+    width: 100%;
+    .main-content{
+        background-color: blue;
+        color:black;
+        a{
+            font-weight: bold;
+            &:hover{
+                color: yellowgreen;
+            }
+        }
+    }
+    .main-info{
+        font: {
+            size:30px;
+        }
+    }
+}

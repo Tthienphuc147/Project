@@ -1,0 +1,118 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+#header {
+    height: 500px;
+    background-image: url('https://cdn57.androidauthority.net/wp-content/uploads/2015/11/00-best-backgrounds-and-wallpaper-apps-for-android.jpg');
+    background-size: cover;
+
+}
+
+#top-header {
+    color: white;
+    display: flex;
+    justify-content:center;
+    padding-top: 50px;
+
+}
+
+#top-header #menu ul {
+    display: flex;
+    list-style: none;
+}
+
+#top-header #menu li {
+    padding: 20px;
+}
+
+#top-header #menu a {
+    color: white;
+    text-decoration: none;
+}
+
+#top-header h2 {
+    margin-left: 20px;
+}
+
+
+#top-header #menu li:last-child {
+    border: 1px solid white;
+    padding: 15px;
+    border-radius: 30px;
+    margin-top: -15px;
+
+}
+
+#top-header #menu li:last-child:hover {
+    color: black;
+    background-color: white;
+
+
+}
+#title-header {
+    text-align: center;
+    color: white;
+    margin: 150px;
+}
+#title-header p{
+    margin-bottom: 20px;
+    font-size: 30px;
+}
+#title-header h1{
+    margin-bottom: 20px;
+    font-size: 50px;
+    letter-spacing: 5px;
+
+}
+#title-header button{
+    font-size: 20px;
+    border:1px solid white;
+    padding:10px;
+    border-radius:30px;
+}
+#title-content{
+    margin-top: 100px;
+    text-align:center;
+}
+#title-content h2{
+    font-size:30px;
+}
+#image{
+    display: flex;
+    justify-content: space-around;
+    margin:100px 0;
+}
+.column{
+    width: 450px;
+    
+}
+.column .pic{
+    width: 450px;
+}
+.column img{
+    max-width: 100%;
+}
+.column p{
+    text-align:center;
+    line-height:50px;
+    font-size: 20px;
+}
+.column h2{
+    color:rgba(144, 238, 144, 0.89);
+    margin: 30px 0;
+    text-align: center;
+}
+#footer{
+    background-color:black;
+    height: 350px;
+    color: white;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align:center;
+    
+}
+
+

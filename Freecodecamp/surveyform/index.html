@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="css/style.css">
+    <title>Survey Form</title>
+</head>
+<body>
+    <div id="title"><h1>Survey Form</h1></div>
+    
+    <div class="panel">
+        <form action="" id="survey-form">
+                <div id="description"><p>Let us know how we can improve ZaraShop</p></div>
+            <div class="rowTab">
+                <div class="labels">
+                    <label for="name">*Name: </label>
+                </div>
+                <div class="rightTab">
+                    <input autofocus type="text" name="name" id="name" class="input-field" placeholder="Enter your name" required> 
+                </div>
+            </div>
+            <div class="rowTab">
+                <div class="labels">
+              <label for="userEmail">* Email: </label>
+              </div> 
+              <div class="rightTab">
+                    <input type="email" name="userEmail" id="userEmail" class="input-field" placeholder="Enter your Email" required>
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+              <label for="userAge">* Age: </label>
+              </div> 
+              <div class="rightTab">
+                <input type="number" name="userAge" id="userAge"  min="1" max="125" class="input-field" placeholder="Age" required> 
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+                <label for="currentPos">What is your favorite shirt?</label>
+              </div> 
+              <div class="rightTab">
+                <select id="currentPos" name="currentPos">
+                  <option disabled selected value>Select an option</option>
+                  <option value="poloS">Polo Shirt</option>
+                  <option value="henlyS">Henly Shirt</option>
+                  <option value="tS">T-Shirt</option>
+                  <option value="other">Other</option>
+                </select>
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+                 <label for="userRating">*Which time of year you usually go shopping?</label>
+              </div> 
+              <div class="rightTab">
+                <ul id="radio"> 
+                <li><label>Jan-April<input name="rating" value="1" type="radio" class="userRatings" required></label></li>
+                <li><label>May-Sep<input name="rating" value="2" type="radio" class="userRatings" required></label></li>
+                <li><label>Oct-Dec<input name="rating" value="3" type="radio" class="userRatings" required></label></li>
+                </ul> 
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+              <label for="most-like">What do you like most in ZaraShop: </label>
+              </div> 
+              <div class="rightTab">
+                <select id="most-like" name="mostLike">
+                  <option disabled selected value>Select an option</option>
+                  <option value="hoodie">Hoodies</option>
+                  <option value="shirt">Shirts</option>
+                  <option value="pant">Pant</option>
+                  <option value="Sweater">Sweater</option>
+                  <option value="Other">Other</option>
+                </select> 
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+              <label for="preferences">Overall,how satisfied were you with the product/service? </label>
+              </div> 
+              <div class="rightTab">
+                <ul id="preferences"> 
+                <li><label><input name="prefer" value="1" type="checkbox" class="userRatings">Very Satisfied</label></li>
+                <li><label><input name="prefer" value="2" type="checkbox" class="userRatings">Satisfied</label></li>
+                <li><label><input name="prefer" value="3" type="checkbox" class="userRatings">Neutral</label></li>
+                <li><label><input name="prefer" value="4" type="checkbox" class="userRatings">Unsatisfied</label></li>
+                <li><label><input name="prefer" value="5" type="checkbox" class="userRatings">Very Unsatisfied</label></li>
+                <li><label><input name="prefer" value="6" type="checkbox" class="userRatings">N/A</label></li>
+                </ul>
+              </div>
+                </div>
+                <div class="rowTab">
+                <div class="labels">
+              <label for="comments">Any Comment or Suggestion</label>
+              </div> 
+              <div class="rightTab">
+                <textarea id="comments" class="input-field"  name="comment" placeholder="Enter your comment here..."></textarea> 
+              </div>
+                </div>
+                <button type="submit">Submit</button>
+        </form>
+    </div>
+   
+
+
+</body>
+</html>

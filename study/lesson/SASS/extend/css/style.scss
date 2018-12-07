@@ -1,0 +1,19 @@
+.border{
+    border-radius: 10px, 5px;
+    -moz-border-radius: 10px, 5px;
+    -webkit-border-radius: 10px, 5px;
+    -o-boder-radius: 10px, 5px;
+}
+.background{
+    background-color: red;
+    border: 10px solid saddlebrown;
+}
+.main{
+    width: 500px;
+    height: 200px;
+    @extend .background;//dung @extend de ke thua thuoc tinh
+}
+.main2{
+    @extend .border,.background;
+
+}

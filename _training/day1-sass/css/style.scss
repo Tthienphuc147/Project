@@ -1,0 +1,14 @@
+
+//luật thứ cấp
+//cách viết rút gọn
+//dùng toán tử
+//biến
+//luật kế thừa (extend)
+//mixin(function-hàm)
+//cau dk(if)
+@for $i from 1 through 3{
+    .item-#{$i}{
+        width: #{$i}*10px;
+    }
+}
+

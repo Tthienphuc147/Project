@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    
+    <div id="menu">
+      
+    </div>
+    <h1 id="status-bar">
+        
+    </h1>
+</body>
+</html>
+<script>
+    class Menu{
+        constructor(){
+            this.buttonContainer=document.querySelector('#menu');
+            this.statusBar=document.querySelector('#status-Bar');
+            this.button={
+            new:Button(buttonContainer,'A'),
+            new:Button(buttonContainer,'B'),
+            new:Button(buttonContainer,'C')
+        }
+        }
+        
+    }
+    class Button{
+        constructor(containerElement,text){
+            this.containerElement=containerElement;
+            this.text=text;
+            const button =document.createElement('button'); 
+            button.textContent=text;
+    
+
+            button.addEventListener('click',this.onClick.bind(this));
+            this.containerElement.append(button);
+            
+        }
+        onClick(){
+            
+        }
+    }
+    const buttonContainer=document.querySelector('#menu');
+    const button1=new Button(buttonContainer,'A');
+    const button2=new Button(buttonContainer,'A');
+    const button3=new Button(buttonContainer,'C');
+    
+</script>
